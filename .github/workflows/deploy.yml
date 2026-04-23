@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/ # Carpeta generada por Astro
-          server-dir: /domains/verdex.cl/public_html/ # Ajustado a la ruta estándar de Hostinger
+          server-dir: ./ # La cuenta FTP ya apunta directamente a public_html
           exclude: |
             **/.git*
             **/.git*/**
