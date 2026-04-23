@@ -1,0 +1,38 @@
+name: 🚀 Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main # O master, dependiendo de tu rama principal
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Obtener el último código
+        uses: actions/checkout@v4
+
+      - name: 🟢 Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Instalar dependencias
+        run: npm ci
+
+      - name: 🏗️ Compilar el proyecto (Astro Build)
+        run: npm run build
+
+      - name: 📂 Sincronizar archivos por FTP a Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/ # Carpeta generada por Astro
+          server-dir: /domains/verdex.cl/public_html/ # Ajustado a la ruta estándar de Hostinger
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
