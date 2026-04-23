@@ -169,28 +169,102 @@ import Layout from '../layouts/Layout.astro';
         </p>
         
         <!-- Formulario Provisorio -->
-        <form class="bg-white/5 p-8 rounded-3xl backdrop-blur-xl border border-white/10 shadow-2xl max-w-md mx-auto">
-          <div class="space-y-4 text-left">
+        <form id="contact-form" action="https://formsubmit.co/ajax/jmoraga@verdex.cl" method="POST" class="bg-white/5 p-8 rounded-3xl backdrop-blur-xl border border-white/10 shadow-2xl max-w-md mx-auto relative overflow-hidden">
+          
+          <!-- Mensaje de éxito oculto -->
+          <div id="success-message" class="hidden absolute inset-0 z-10 bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center transition-all duration-300">
+            <div class="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">¡Mensaje Enviado!</h3>
+            <p class="text-slate-300 text-sm">Hemos recibido tus datos correctamente. Un especialista se pondrá en contacto pronto.</p>
+          </div>
+
+          <!-- Campos de control de FormSubmit -->
+          <input type="hidden" name="_subject" value="Nuevo contacto desde Verdex Landing Page">
+          <input type="hidden" name="_template" value="box">
+          
+          <div class="space-y-4 text-left relative z-0">
             <div>
               <label for="name" class="block text-sm font-medium text-slate-300 mb-1">Nombre Completo</label>
-              <input type="text" id="name" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="Ej. Ana Martínez" required>
+              <input type="text" id="name" name="Nombre" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="Ej. Ana Martínez" required>
             </div>
             <div>
               <label for="empresa" class="block text-sm font-medium text-slate-300 mb-1">Empresa</label>
-              <input type="text" id="empresa" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="Nombre de tu empresa" required>
+              <input type="text" id="empresa" name="Empresa" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="Nombre de tu empresa" required>
             </div>
             <div>
               <label for="email" class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
-              <input type="email" id="email" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="hola@empresa.com" required>
+              <input type="email" id="email" name="Email" class="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="hola@empresa.com" required>
             </div>
-            <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-500/25 mt-4">
-              Enviar Solicitud
+            <button type="submit" id="submit-btn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-500/25 mt-4 flex items-center justify-center gap-2">
+              <span>Enviar Solicitud</span>
+              <svg id="submit-spinner" class="hidden animate-spin h-5 w-5 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
             </button>
           </div>
           <p class="text-xs text-slate-400 mt-4 text-center">
             Sitio web en construcción. Estaremos en línea con nuestra plataforma completa muy pronto.
           </p>
         </form>
+
+        <script>
+          const form = document.getElementById('contact-form') as HTMLFormElement;
+          const successMessage = document.getElementById('success-message');
+          const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+          const submitSpinner = document.getElementById('submit-spinner');
+          const btnText = submitBtn?.querySelector('span');
+
+          form?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Estado de carga
+            if (submitBtn && btnText && submitSpinner) {
+              submitBtn.disabled = true;
+              btnText.textContent = 'Enviando...';
+              submitSpinner.classList.remove('hidden');
+              submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            }
+
+            try {
+              const formData = new FormData(form);
+              const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                  'Accept': 'application/json'
+                }
+              });
+
+              if (response.ok) {
+                // Mostrar éxito
+                successMessage?.classList.remove('hidden');
+                form.reset();
+                
+                // Ocultar mensaje después de 5 segundos
+                setTimeout(() => {
+                  successMessage?.classList.add('hidden');
+                }, 5000);
+              } else {
+                throw new Error('Network response was not ok');
+              }
+            } catch (error) {
+              alert('Hubo un error al enviar el mensaje. Por favor, intenta nuevamente.');
+            } finally {
+              // Restaurar botón
+              if (submitBtn && btnText && submitSpinner) {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Enviar Solicitud';
+                submitSpinner.classList.add('hidden');
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+              }
+            }
+          });
+        </script>
       </div>
     </section>
   </main>
